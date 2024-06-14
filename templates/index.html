@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Flask App with WebSockets</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <style>
+        body {
+        background-color: #ffffff; /* Change to the shade of gray you prefer */
+        }
+        .container {
+            display: flex;
+            align-items: center; /* Align items vertically */
+            justify-content: center; /* Center items horizontally */
+            flex-direction: column; /* Stack items vertically */
+            text-align: center; /* Center text within elements */
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .heading {
+            margin-right: 20px;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap; /* Wrap buttons to the next line if needed */
+            justify-content: center; /* Center buttons horizontally */
+            margin-bottom: 20px;
+        }
+        .button {
+            margin-right: 15px; /* Add some space between buttons */
+            margin-bottom: 0px; /* Add some space below buttons */
+            justify-content: center;
+        }
+        .buttonss {
+            margin-right: 0px; /* Add some space between buttons */
+            margin-bottom: 0px; /* Add some space below buttons */
+            justify-content: center;
+        }
+        .text {
+            display: flex;
+            justify-content: center; /* Center text elements horizontally */
+            flex-direction: column;
+            width: 100%;
+        }
+        .drop {
+            display: flex;
+            flex-wrap: wrap; /* Wrap buttons to the next line if needed */
+            justify-content: center; /* Center buttons horizontally */
+            align-items: center;
+            margin-left: 330px;
+            width: 134%;
+
+        }
+        .drop .btn-group {
+            margin-left: -375px; /* Adjust the space between the text box and the dropdown */
+        }
+        #image {
+            max-width: 20%; /* Limit the maximum width of the image */
+            max-height: 20%; /* Limit the maximum height of the image */
+
+            width: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="header">
+        <h1 class="heading" id="messages">No Student Selected</h1>
+         <img id="image" src="/update_image/C:\\Users\\nyg4\PycharmProjects\pythonProject\images\default.png" alt="Default Image">
+    </div>
+    <div class="buttons">
+        <button id="entree" class="btn btn-primary button">entree</button>
+        <button id="side" class="btn btn-primary button">side</button>
+        <button id="milk" class="btn btn-primary button">milk</button>
+        <button id="drink" class="btn btn-primary button">drink</button>
+        <button id="snack" class="btn btn-primary button">À la carte</button>
+
+    </div>
+    <div class="text">
+        <input type="text" id="inputBox" class="form-control mt-3" placeholder="Student ID">
+    </div>
+    <div class="drop row">
+        <div class="col-md-8">
+            <input type="text" id="search" class="form-control mt-3" placeholder="Student Search (First Name + (space) + last initial)">
+        </div>
+        <div class="col-md-4 mt-3">
+            <div class="btn-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Grade (Optional)
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#" data-value="9">9th grade</a>
+                    <a class="dropdown-item" href="#" data-value="10">10th grade</a>
+                    <a class="dropdown-item" href="#" data-value="11">11th grade</a>
+                    <a class="dropdown-item" href="#" data-value="12">12th grade</a>
+                    <a class="dropdown-item" href="#" data-value="0">None</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="text">
+        <textarea id="total" class="form-control mt-3" rows="10" readonly style="resize: none;"></textarea>
+        <h2 id="sum">$0.00</h2>
+    </div>
+    <div class="buttonss">
+        <button id="complete" class="btn btn-success">complete</button>
+        <button id="clear" class="btn btn-danger">clear</button>
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            socket.on('connect', function() {
+                //socket.send('User has connected!');
+            });
+
+            socket.on('droptext', function(msg) {
+                document.getElementById('dropdownMenuButton').innerText = msg;
+            });
+
+            socket.on('message', function(msg) {
+                var heading = document.getElementById('messages');
+
+          // Change its text
+                heading.innerText = msg;
+            });
+
+            socket.on('img', function(msg) {
+
+          // Change its text
+                document.getElementById('image').src = "/update_image/" + msg;
+            });
+
+            socket.on('sum', function(msg) {
+                var heading = document.getElementById('sum');
+
+          // Change its text
+                heading.innerText = msg;
+            });
+
+            socket.on('total', function(msg) {
+                var messages = document.getElementById("total");
+                messages.value = '';  // Clear the text area
+                messages.value += msg;
+            });
+
+
+
+
+            document.getElementById("entree").addEventListener("click", function() {
+
+                socket.emit('item', {data: "entree"});
+
+            });
+
+            document.getElementById("side").addEventListener("click", function() {
+
+                socket.emit('item', {data: "side"});
+
+            });
+
+
+            document.getElementById("milk").addEventListener("click", function() {
+
+                socket.emit('item', {data: "milk"});
+
+            });
+
+
+            document.getElementById("drink").addEventListener("click", function() {
+
+                socket.emit('item', {data: "drink"});
+
+            });
+
+
+            document.getElementById("snack").addEventListener("click", function() {
+
+                socket.emit('item', {data: "snack"});
+
+            });
+
+            document.getElementById("clear").addEventListener("click", function() {
+
+                socket.emit('funct', {data: "clear"});
+
+            });
+
+            document.getElementById("complete").addEventListener("click", function() {
+
+                socket.emit('funct', {data: "complete"});
+
+            });
+
+
+
+
+
+            // Listen for keypress event on the input box
+            document.getElementById("inputBox").addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    // Trigger click event on sendButton when Enter key is pressed
+                    var inputBox = document.getElementById("inputBox");
+                var message = inputBox.value.trim();
+                if (message !== '') {
+                    socket.emit('id', {message});
+                    inputBox.value = '';  // Clear the input box after sending the message
+                }
+                }
+            });
+
+
+        document.getElementById("search").addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    // Trigger click event on sendButton when Enter key is pressed
+                    var inputBox = document.getElementById("search");
+                var message = inputBox.value.trim();
+                if (message !== '') {
+                    socket.emit('search', {message});
+                    inputBox.value = '';  // Clear the input box after sending the message
+                }
+                }
+            });
+
+        var dropdownItems = document.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    var value = this.getAttribute('data-value');
+                    socket.emit('dropdown', {data: value});
+                });
+            });
+        });
+    </script>
+</body>
+</html>

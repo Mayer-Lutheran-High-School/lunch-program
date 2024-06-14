@@ -1,0 +1,11 @@
+
+<h1>hello</h1>
+<li>
+    {% for student in students %}
+        {% set photo = student.img %}
+
+        <img src="{{ photo }}" alt="" style="width: 200px; height: auto;">
+        {{ student.First_Name }} {{ student.Last_Name }}
+
+    {% endfor %}
+</li>
